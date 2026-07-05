@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b263b">
+    <link rel="preload" as="image" href="img/p1.jpg">
+    <link rel="icon" href="./img/app-icon.png">
+    <link rel="apple-touch-icon" href="./img/app-icon.png">
+    <title>إنجيلك المسموع - قراءة السفر</title>
+    <link rel="stylesheet" href="chapters.css?v=4">
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="back-btn">العودة للقائمة ➔</a>
+        <div class="quick-nav">
+            <select id="bookSelect" class="nav-select" title="اختر السفر"></select>
+            <select id="chapterSelect" class="nav-select" title="اختر الأصحاح"></select>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <h1 id="book-title">جاري تحميل الاسم...</h1>
+        
+        <div class="player-container">
+            <div class="audio-controls-row">
+                <div class="audio-source-toggle">
+                    <label class="source-label active" id="lbl-local">
+                        <input type="radio" name="audioSource" value="local" checked>
+                        <span>📁 صوت محلي</span>
+                    </label>
+                    <label class="source-label" id="lbl-online">
+                        <input type="radio" name="audioSource" value="online">
+                        <span>🌐 بث إنترنت</span>
+                    </label>
+                </div>
+                <a id="external-audio-link" href="#" target="_blank" class="external-audio-btn" title="الاستماع على الموقع الأصلي">🔗 موقع الصوت</a>
+            </div>
+            <audio id="bible-audio" controls preload="auto"></audio>
+        </div>
+        
+        <div id="text-content" class="bible-text">
+            جاري تحميل النص من ملف SVD...
+        </div>
+    </div>
+
+    <script src="bible-data.js?v=1"></script>
+    <script src="main.js?v=5"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            });
+        }
+    </script>
+</body>

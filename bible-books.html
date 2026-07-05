@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b263b">
+    <link rel="icon" href="./img/app-icon.png">
+    <link rel="apple-touch-icon" href="./img/app-icon.png">
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="chapters.css?v=4">
+    <title>أسفار الكتاب المقدس</title>
+    <style>
+        /* إلغاء قيود الطول والإخفاء الموروثة من chapters.css لتمكين التمرير */
+        html, body {
+            height: auto !important;
+            overflow: auto !important;
+        }
+
+        .books-container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto 40px auto;
+            padding-bottom: 50px;
+        }
+        
+        .header-area {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .book-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-height: 80px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .book-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.15);
+        }
+        
+        .book-card-number {
+            font-size: 0.8rem;
+            color: #ffd700;
+            margin-bottom: 6px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        
+        .book-card-name {
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+
+        .back-btn-container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto 0 auto;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        @media (max-width: 600px) {
+            .books-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px;
+            }
+            .book-card {
+                padding: 15px 10px;
+                min-height: 70px;
+            }
+            .book-card-name {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="index.html" class="back-btn">➔ العودة للفهرس الرئيسي</a>
+    </div>
+
+    <div class="main-content-wrapper">
+        <div class="header-area">
+            <h1 id="testament-title" style="margin-top:20px; margin-bottom:10px;">أسفار الكتاب المقدس</h1>
+            <p id="testament-subtitle" style="color: #ffd700; font-size: 1.1rem; margin: 0;"></p>
+        </div>
+
+        <div class="books-container">
+            <div id="books-grid" class="books-grid">
+                <!-- Books will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="minimal-footer">
+        <a href="https://felopatermosa.netlify.app/" target="_blank">جميع الحقوق محفوظة فيلوباتير موسى حجر &copy; 2026</a>
+    </footer>
+
+    <!-- Load the shared Bible data -->
+    <script src="bible-data.js?v=1"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const testament = urlParams.get('testament') || 'new';
+
+            const titleEl = document.getElementById('testament-title');
+            const subtitleEl = document.getElementById('testament-subtitle');
+            const gridEl = document.getElementById('books-grid');
+
+            // Old Testament: IDs 1 to 39
+            // New Testament: IDs 40 to 66
+            let startId = 1;
+            let endId = 39;
+
+            if (testament === 'new') {
+                startId = 40;
+                endId = 66;
+                titleEl.innerText = "أسفار العهد الجديد";
+                subtitleEl.innerText = "البشارة المفرحة والرسائل وسفر الرؤيا (٢٧ سفراً)";
+            } else {
+                startId = 1;
+                endId = 39;
+                titleEl.innerText = "أسفار العهد القديم";
+                subtitleEl.innerText = "الشريعة والأنبياء والمزامير والكتب التاريخية (٣٩ سفراً)";
+            }
+
+            gridEl.innerHTML = "";
+
+            for (let id = startId; id <= endId; id++) {
+                const bookName = arabicNames[id];
+                if (!bookName) continue;
+
+                const card = document.createElement('a');
+                // Dynamic redirection to chapters.html?id=[bookId]
+                card.href = `chapters.html?id=${id}`;
+                card.className = 'book-card';
+                
+                const dispNum = testament === 'new' ? (id - 39) : id;
+
+                card.innerHTML = `
+                    <span class="book-card-number">السفر ${dispNum}</span>
+                    <span class="book-card-name">${bookName}</span>
+                `;
+                gridEl.appendChild(card);
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

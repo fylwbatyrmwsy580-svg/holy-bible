@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/katameros/:path*",
+      "destination": "https://api.katameros.app/:path*"
+    }
+  ]
+}

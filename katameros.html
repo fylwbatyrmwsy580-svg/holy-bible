@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b263b">
+    <link rel="icon" href="./img/app-icon.png">
+    <link rel="apple-touch-icon" href="./img/app-icon.png">
+    <title>إنجيلك المسموع - قراءات القطمارس اليومية</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="chapters.css?v=4">
+    <style>
+        /* إلغاء قيود الطول والإخفاء الموروثة من chapters.css لتمكين التمرير */
+        html, body {
+            height: auto !important;
+            overflow: auto !important;
+        }
+
+        .katameros-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding-bottom: 60px; 
+        }
+        
+        /* شريط اختيار التاريخ */
+        .date-picker-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .date-picker-wrapper label {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .date-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        
+        .date-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .date-btn:hover {
+            background: #ffd700;
+            color: #000;
+            border-color: #ffd700;
+        }
+        
+        /* شريط التصفية */
+        .filter-bar-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background: #ffd700;
+            color: #000;
+            border-color: #ffd700;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        /* أزرار التبديل بين القراءة الطقسية والأصحاح الكامل */
+        .reading-toggle-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 8px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .tab-btn:hover {
+            color: #fff;
+        }
+        
+        .tab-btn.active {
+            color: #ffd700;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #ffd700;
+        }
+        
+        /* كروت القراءات والقطمارس */
+        .reading-section-card {
+            background: rgba(0, 0, 0, 0.75); /* زيادة طفيفة للتعتيم لظهور النص بوضوح */
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .section-header {
+            color: #ffd700;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-size: 1.45rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .lecture-item {
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 215, 0, 0.15);
+            padding-bottom: 15px;
+        }
+        
+        .lecture-item:last-child { 
+            border: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .lecture-title-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .lecture-name-badge {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .go-btn {
+            background-color: #ffd700;
+            color: #000;
+            border: none;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .go-btn:hover { 
+            background-color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .lecture-body {
+            line-height: 1.6;
+            font-size: 1.2rem;
+            color: #f5f5f5;
+            text-align: justify;
+            white-space: pre-line;
+        }
+        
+        .lecture-body p {
+            margin: 0 0 10px 0;
+        }
+        
+        .verse-span {
+            display: inline;
+        }
+        
+        .verse-num-badge {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        
+        .coptic-header-card {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* التنبيهات */
+        .alert-loading {
+            text-align: center;
+            color: #ffd700;
+            font-size: 1.2rem;
+            padding: 30px;
+            font-weight: bold;
+        }
+        
+        .alert-error {
+            text-align: center;
+            color: #ff4d4d;
+            font-size: 1.1rem;
+            padding: 20px;
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .lecture-title-area {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .go-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .reading-section-card {
+                padding: 18px;
+            }
+            .lecture-body {
+                font-size: 1.1rem;
+                line-height: 1.6;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="index.html" class="back-btn">➔ العودة للفهرس الرئيسي</a>
+    </div>
+
+    <div class="main-content-wrapper">
+        <h1 style="margin-top:20px; text-align:center;">قراءات القطمارس اليومية</h1>
+        
+        <div class="katameros-container">
+            <!-- شريط اختيار التاريخ -->
+            <div class="date-picker-wrapper">
+                <label for="dateSelect">تاريخ القراءات:</label>
+                <input type="date" id="dateSelect" class="date-input">
+                <button id="btnToday" class="date-btn">اليوم</button>
+                <button id="btnYesterday" class="date-btn">أمس</button>
+                <button id="btnTomorrow" class="date-btn">غداً</button>
+            </div>
+
+            <!-- عرض التاريخ القبطي والجريد الرئيسي -->
+            <div class="coptic-header-card">
+                <h3 id="coptic-date-display" style="color: #ffd700; text-align:center; margin: 0; font-size: 1.3rem;">جاري حساب التقويم القبطي...</h3>
+                <p id="gregorian-date-display" style="color: #ccc; text-align:center; margin: 5px 0 0 0; font-size: 0.95rem;"></p>
+            </div>
+
+            <!-- شريط التصفية الرئيسي -->
+            <div class="filter-bar-wrapper">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="gospels-psalms">المزامير والأناجيل</button>
+                <button class="filter-btn" data-filter="epistles">الرسائل (القطمارس)</button>
+                <button class="filter-btn" data-filter="synaxarium">السنكسار</button>
+            </div>
+
+            <div id="readings-root">
+                <div class="alert-loading">⏳ جاري مزامنة قراءات اليوم وجلب نصوص الكنيسة القبطية...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="minimal-footer">
+        <a href="https://felopatermosa.netlify.app/" target="_blank">جميع الحقوق محفوظة فيلوباتير موسى حجر &copy; 2026</a>
+    </footer>
+
+    <!-- تحميل ملف البيانات المشترك للحصول على أسماء الأسفار -->
+    <script src="coptic-psalms-data.js"></script>
+    <script src="bible-data.js?v=1"></script>
+    <script>
+        // متغير عالمي لحفظ بيانات الكتاب المقدس المرفقة محلياً لدعم عرض الأصحاح كاملاً
+        let bibleTextData = null;
+
+        // دالة تحويل رقم المزمور من الترتيب العبري (فان دايك) إلى الترتيب السبعيني (القبطي والأجبية)
+        function getLxxPsalmNumber(n) {
+            n = parseInt(n);
+            if (isNaN(n)) return n;
+            if (n >= 1 && n <= 8) return n;
+            if (n === 9 || n === 10) return 9;
+            if (n >= 11 && n <= 113) return n - 1;
+            if (n === 114 || n === 115) return 113;
+            if (n === 116) return 114;
+            if (n >= 117 && n <= 146) return n - 1;
+            if (n === 147) return 146;
+            if (n >= 148 && n <= 150) return n;
+            return n;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const root = document.getElementById("readings-root");
+            const dateDisplay = document.getElementById("coptic-date-display");
+            const gregDisplay = document.getElementById("gregorian-date-display");
+            const dateInput = document.getElementById("dateSelect");
+            
+            // دالة للحصول على التاريخ الطقسي (بعد الساعة 5 مساءً [17:00] يعتبر اليوم التالي طقسياً)
+            const getLiturgicalDate = () => {
+                const d = new Date();
+                if (d.getHours() >= 17) {
+                    d.setDate(d.getDate() + 1);
+                }
+                return d;
+            };
+
+            // ضبط تاريخ اليوم الافتراضي
+            const today = getLiturgicalDate();
+            const formatInputDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            dateInput.value = formatInputDate(today);
+
+            // جلب البيانات عند تغيير التاريخ أو الضغط على الأزرار
+            dateInput.addEventListener("change", () => loadReadingsForDate(new Date(dateInput.value)));
+            
+            document.getElementById("btnToday").addEventListener("click", () => {
+                const d = getLiturgicalDate();
+                dateInput.value = formatInputDate(d);
+                loadReadingsForDate(d);
+            });
+            
+            document.getElementById("btnYesterday").addEventListener("click", () => {
+                const d = getLiturgicalDate();
+                d.setDate(d.getDate() - 1);
+                dateInput.value = formatInputDate(d);
+                loadReadingsForDate(d);
+            });
+            
+            document.getElementById("btnTomorrow").addEventListener("click", () => {
+                const d = getLiturgicalDate();
+                d.setDate(d.getDate() + 1);
+                dateInput.value = formatInputDate(d);
+                loadReadingsForDate(d);
+            });
+
+            // إعداد أزرار التصفية (الكل، الأناجيل والمزامير، الرسائل، السنكسار)
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filterValue = btn.getAttribute('data-filter');
+                    filterReadings(filterValue);
+                });
+            });
+
+            // تحميل النص المحلي للكتاب المقدس بالخلفية لدعم التصفح الكامل للأصحاحات
+            loadLocalBibleText();
+
+            // الجلب الأولي لبيانات اليوم
+            loadReadingsForDate(today);
+
+            // دالة جلب النص المحلي للكتاب المقدس
+            async function loadLocalBibleText() {
+                try {
+                    const res = await fetch('./svd.json');
+                    if (res.ok) {
+                        bibleTextData = await res.json();
+                        console.log("تم تحميل ملف svd.json محلياً بنجاح لدعم عرض الأصحاحات كاملة.");
+                    }
+                } catch (e) {
+                    console.error("فشل تحميل ملف svd.json محلياً:", e);
+                }
+            }
+
+            // دالة الجلب التي تحتوي على سلسلة Fallback لمعالجة CORS
+            async function fetchKatameros(dateStr) {
+                const primaryUrl = `https://api.katameros.app/readings/gregorian/${dateStr}?languageId=3`;
+                
+                const fetchMethods = [
+                    // طريقة 1: بروكسي Netlify (الأساسي والأضمن عند الرفع على Netlify لتفادي الـ CORS)
+                    async () => {
+                        const res = await fetch(`./api/katameros/readings/gregorian/${dateStr}?languageId=3`);
+                        if (!res.ok) throw new Error("Netlify proxy status not OK");
+                        return await res.json();
+                    },
+                    // طريقة 2: جلب مباشر (إذا كان يعمل محلياً أو يدعم CORS)
+                    async () => {
+                        const res = await fetch(primaryUrl);
+                        if (!res.ok) throw new Error("Direct fetch status not OK");
+                        return await res.json();
+                    },
+                    // طريقة 3: corsproxy.io
+                    async () => {
+                        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(primaryUrl)}`);
+                        if (!res.ok) throw new Error("Corsproxy.io status not OK");
+                        return await res.json();
+                    },
+                    // طريقة 4: allorigins.win
+                    async () => {
+                        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(primaryUrl)}`);
+                        if (!res.ok) throw new Error("Allorigins status not OK");
+                        const json = await res.json();
+                        return JSON.parse(json.contents);
+                    },
+                    // طريقة 5: thingproxy
+                    async () => {
+                        const res = await fetch(`https://thingproxy.freeboard.io/fetch/${primaryUrl}`);
+                        if (!res.ok) throw new Error("Thingproxy status not OK");
+                        return await res.json();
+                    }
+                ];
+
+                for (const method of fetchMethods) {
+                    try {
+                        const data = await method();
+                        if (data && (data.sections || data.copticDate)) {
+                            console.log("تم جلب البيانات بنجاح باستخدام الطريقة:", method.toString().substring(0, 50));
+                            return data;
+                        }
+                    } catch (e) {
+                        console.warn("فشلت طريقة جلب، المحاولة بالطريقة التالية...", e);
+                    }
+                }
+                throw new Error("فشلت جميع طرق جلب القراءات اليومية.");
+            }
+
+            async function loadReadingsForDate(dateObj) {
+                root.innerHTML = `<div class="alert-loading">⏳ جاري مزامنة قراءات اليوم وجلب نصوص الكنيسة القبطية...</div>`;
+                dateDisplay.innerText = "جاري تحميل التاريخ القبطي...";
+                
+                const d = String(dateObj.getDate()).padStart(2, '0');
+                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const y = dateObj.getFullYear();
+                const dateStr = `${d}-${m}-${y}`;
+
+                // عرض التاريخ الميلادي المقروء
+                gregDisplay.innerText = dateObj.toLocaleDateString("ar-EG", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                try {
+                    const data = await fetchKatameros(dateStr);
+                    
+                    if (data.copticDate) dateDisplay.innerText = data.copticDate;
+                    root.innerHTML = "";
+
+                    if (!data.sections || data.sections.length === 0) {
+                        root.innerHTML = `<div class="alert-error">ℹ️ لا توجد قراءات مسجلة لهذا اليوم.</div>`;
+                        return;
+                    }
+
+                    data.sections.forEach(section => {
+                        if (!section.subSections || section.subSections.length === 0) return;
+
+                        let sectionHtml = `
+                            <div class="reading-section-card">
+                                <h2 class="section-header">
+                                    <span>🌟</span> ${section.title}
+                                </h2>
+                        `;
+
+                        section.subSections.forEach(subSection => {
+                            if (!subSection.readings || subSection.readings.length === 0) return;
+
+                            subSection.readings.forEach(reading => {
+                                let actionButtonsHtml = "";
+                                let readingTitle = subSection.title;
+
+                                // إذا كانت القراءة تحتوي على عنوان خاص بها (مثل السنكسار)
+                                if (reading.title) {
+                                    readingTitle = reading.title;
+                                }
+
+                                // تحديد نوع القراءة لدعم التصفية
+                                let type = "epistle";
+                                if (subSection.title === "البولس") type = "epistle";
+                                else if (subSection.title === "الكاثوليكون") type = "epistle";
+                                else if (subSection.title === "الابركسيس") type = "epistle";
+                                else if (subSection.title === "السنكسار") type = "synaxarium";
+                                else if (subSection.title === "المزمور والإنجيل") {
+                                    const isPsalm = reading.passages && reading.passages.some(p => p.bookId === 19);
+                                    type = isPsalm ? "psalm" : "gospel";
+                                }
+
+                                // بناء أزرار الاستماع والشواهد ديناميكياً
+                                if (reading.passages && reading.passages.length > 0) {
+                                    reading.passages.forEach(passage => {
+                                        if (passage.bookId) {
+                                            let dispRef = `${passage.chapter}`;
+                                            if (passage.bookId === 19) {
+                                                dispRef = `${getLxxPsalmNumber(passage.chapter)}`;
+                                            }
+                                            const bookName = passage.bookId === 19 ? "مزمور" : (arabicNames[passage.bookId] || passage.bookTranslation);
+                                            
+                                            // ربط الشاهد بصفحة الاستماع
+                                            actionButtonsHtml += `
+                                                <a href="chapters.html?id=${passage.bookId}&chapter=${passage.chapter}" class="go-btn" target="_blank">
+                                                    ▶ إستمع واقرأ (${bookName} ${dispRef})
+                                                </a>
+                                            `;
+                                        }
+                                    });
+                                }
+
+                                // تنسيق نص القراءة مع دعم القراءة الكاملة للمزامير والأناجيل
+                                let textContentHtml = "";
+                                if (reading.html) {
+                                    textContentHtml = `<div class="lecture-body">${reading.html}</div>`;
+                                } else if (reading.passages && reading.passages.length > 0) {
+                                    const mainPassage = reading.passages[0];
+                                    const isPsalmOrGospel = mainPassage.bookId === 19 || (mainPassage.bookId >= 40 && mainPassage.bookId <= 43);
+
+                                    if (isPsalmOrGospel && mainPassage.bookId && mainPassage.chapter) {
+                                        // إذا كان مزمور أو إنجيل، نوفر تبويب التبديل بين القراءة الطقسية المحددة والأصحاح الكامل
+                                        textContentHtml = `
+                                            <div class="reading-toggle-tabs">
+                                                <button class="tab-btn active" onclick="toggleReadingTab(this, 'liturgical')">القراءة الطقسية</button>
+                                                <button class="tab-btn" onclick="toggleReadingTab(this, 'full', ${mainPassage.bookId}, ${mainPassage.chapter})">الأصحاح كاملاً</button>
+                                            </div>
+                                            <div class="lecture-body liturgical-text">
+                                        `;
+                                        if (mainPassage.bookId === 19) {
+                                            textContentHtml += `<div style="text-align:center; color:#d4af37; margin-bottom:15px; font-weight:bold; font-size:1.1rem;">مِنْ مَزَامِيرِ تَرْتِيلِ مُعَلِّمِنَا دَاوُدَ النَّبِيِّ. بَرَكَاتُهُ عَلَيْنَا آمِين.</div>`;
+                                        }
+                                        reading.passages.forEach(passage => {
+                                            if (mainPassage.bookId === 19 && window.copticPsalms) {
+                                                let lxxChapter = getLxxPsalmNumber(passage.chapter);
+                                                let copticText = window.copticPsalms[lxxChapter];
+                                                if (copticText) {
+                                                    textContentHtml += `
+                                                        <div class="verse-span" style="margin-top:10px; margin-bottom:10px; font-size: 1.05rem; line-height: 1.8;">
+                                                            ${copticText}
+                                                        </div>
+                                                    `;
+                                                } else {
+                                                    if (passage.verses && passage.verses.length > 0) {
+                                                        passage.verses.forEach(v => {
+                                                            textContentHtml += `
+                                                                <span class="verse-span">
+                                                                    <span class="verse-num-badge">${v.number}</span>${v.text}
+                                                                </span>
+                                                            `;
+                                                        });
+                                                    }
+                                                }
+                                            } else {
+                                                if (passage.verses && passage.verses.length > 0) {
+                                                    passage.verses.forEach(v => {
+                                                        textContentHtml += `
+                                                            <span class="verse-span">
+                                                                <span class="verse-num-badge">${v.number}</span>${v.text}
+                                                            </span>
+                                                        `;
+                                                    });
+                                                }
+                                            }
+                                        });
+                                        if (mainPassage.bookId === 19) {
+                                            textContentHtml += `<div style="text-align:center; color:#d4af37; margin-top:15px; font-weight:bold; font-size:1.1rem;">هَلِّلُويَا</div>`;
+                                        }
+                                        textContentHtml += `
+                                            </div>
+                                            <div class="lecture-body full-chapter-text" style="display:none; border-top: 1px dashed rgba(255,215,0,0.2); padding-top: 10px; margin-top: 5px;">
+                                                <div class="alert-loading" style="font-size:0.95rem; padding:10px;">⏳ جاري جلب الأصحاح كاملاً...</div>
+                                            </div>
+                                        `;
+                                    } else {
+                                        // الرسائل العادية
+                                        textContentHtml = `<div class="lecture-body liturgical-text">`;
+                                        reading.passages.forEach(passage => {
+                                            if (passage.verses && passage.verses.length > 0) {
+                                                passage.verses.forEach(v => {
+                                                    textContentHtml += `
+                                                        <span class="verse-span">
+                                                            <span class="verse-num-badge">${v.number}</span>${v.text}
+                                                        </span>
+                                                    `;
+                                                });
+                                            }
+                                        });
+                                        textContentHtml += `</div>`;
+                                    }
+                                }
+
+                                // تجميع الشاهد لعرضه بجانب العنوان
+                                let passageRefText = "";
+                                if (reading.passages && reading.passages.length > 0) {
+                                    const refs = reading.passages.map(p => {
+                                        let refStr = p.ref;
+                                        if (p.bookId === 19) { // مزمور
+                                            const parts = p.ref.split(':');
+                                            if (parts.length > 0) {
+                                                const masoreticChapter = parseInt(parts[0]);
+                                                const lxxChapter = getLxxPsalmNumber(masoreticChapter);
+                                                if (parts.length > 1) {
+                                                    refStr = `${lxxChapter}:${parts[1]}`;
+                                                } else {
+                                                    refStr = `${lxxChapter}`;
+                                                }
+                                            }
+                                        }
+                                        const bName = p.bookId === 19 ? "مزمور" : (arabicNames[p.bookId] || p.bookTranslation);
+                                        return `${bName} ${refStr}`;
+                                    }).join(" ، ");
+                                    passageRefText = `<span class="lecture-name-badge">${refs}</span>`;
+                                }
+
+                                sectionHtml += `
+                                    <div class="lecture-item" data-type="${type}">
+                                        <div class="lecture-title-area">
+                                            <h3 style="color:#ffd700; margin:0; font-size:1.25rem; font-weight:bold;">
+                                                ${readingTitle}
+                                            </h3>
+                                            ${passageRefText}
+                                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                                ${actionButtonsHtml}
+                                            </div>
+                                        </div>
+                                        ${textContentHtml}
+                                    </div>
+                                `;
+                            });
+                        });
+
+                        sectionHtml += `</div>`;
+                        root.innerHTML += sectionHtml;
+                    });
+
+                    // إعادة تطبيق الفلترة المفعلة حالياً بعد تحميل البيانات
+                    const activeFilterBtn = document.querySelector('.filter-btn.active');
+                    if (activeFilterBtn) {
+                        filterReadings(activeFilterBtn.getAttribute('data-filter'));
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                    root.innerHTML = `
+                        <div class="alert-error">
+                            ⚠️ حدث خطأ أثناء تحميل قراءات اليوم.<br>
+                            يرجى التأكد من اتصالك بالإنترنت والمحاولة مجدداً.
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // دالة التبديل بين القراءة الطقسية والأصحاح الكامل
+        function toggleReadingTab(btn, mode, bookId, chapterNum) {
+            const tabContainer = btn.closest('.lecture-item');
+            const tabBtns = tabContainer.querySelectorAll('.tab-btn');
+            const liturgicalArea = tabContainer.querySelector('.liturgical-text');
+            const fullArea = tabContainer.querySelector('.full-chapter-text');
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (mode === 'liturgical') {
+                liturgicalArea.style.display = 'block';
+                fullArea.style.display = 'none';
+            } else {
+                liturgicalArea.style.display = 'none';
+                fullArea.style.display = 'block';
+                
+                // تحميل النص الكامل للأصحاح إذا لم يتم تحميله من قبل
+                if (fullArea.innerHTML.trim() === "" || fullArea.innerHTML.includes("⏳")) {
+                    fullArea.innerHTML = getFullChapterHtml(bookId, chapterNum);
+                }
+            }
+        }
+
+        // دالة جلب النص الكامل للأصحاح من ملف svd.json المحمل محلياً
+        function getFullChapterHtml(bookId, chapterNum) {
+            if (!bibleTextData) {
+                return `<p style="color: #ff4d4d; font-size:1rem; padding:10px;">❌ لم يتم تحميل ملف الكتاب المقدس svd.json بعد. يرجى التأكد من وجوده بجانب الموقع.</p>`;
+            }
+            
+            try {
+                const book = bibleTextData.books ? bibleTextData.books.find(b => b.id == bookId) : bibleTextData[bookId - 1];
+                if (!book) return `<p style="color: #ff4d4d; font-size:1rem; padding:10px;">❌ السفر غير موجود في قاعدة البيانات.</p>`;
+                
+                const chapterIndex = chapterNum - 1;
+                const chapter = book.chapters[chapterIndex];
+                if (!chapter) return `<p style="color: #ff4d4d; font-size:1rem; padding:10px;">❌ الأصحاح غير موجود في هذا السفر.</p>`;
+                
+                const verses = chapter.verses || chapter;
+                let html = `<div style="background: rgba(255, 215, 0, 0.05); border-left: 3px solid #ffd700; padding: 15px; border-radius: 8px; margin-top: 10px;">`;
+                html += `<p style="margin: 0 0 10px 0; font-weight: bold; color:#ffd700; font-size:1.1rem;">📖 الأصحاح ${chapterNum} كاملاً بنص الكتاب المقدس:</p>`;
+                
+                verses.forEach((v, vIdx) => {
+                    let text = (typeof v === 'string') ? v : (v.text || v.content);
+                    html += `
+                        <span class="verse-span">
+                            <span class="verse-num-badge">${vIdx + 1}</span>${text}
+                        </span>
+                    `;
+                });
+                html += `</div>`;
+                return html;
+            } catch (e) {
+                console.error(e);
+                return `<p style="color: #ff4d4d; font-size:1rem; padding:10px;">❌ حدث خطأ أثناء قراءة النص من الملف المحلي.</p>`;
+            }
+        }
+
+        // دالة تصفية القراءات حسب النوع
+        function filterReadings(filterValue) {
+            const lectureItems = document.querySelectorAll('.lecture-item');
+            const cards = document.querySelectorAll('.reading-section-card');
+            
+            lectureItems.forEach(item => {
+                const type = item.getAttribute('data-type');
+                if (filterValue === 'all') {
+                    item.style.display = 'block';
+                } else if (filterValue === 'gospels-psalms') {
+                    if (type === 'psalm' || type === 'gospel') {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                } else if (filterValue === 'epistles') {
+                    if (type === 'epistle') {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                } else if (filterValue === 'synaxarium') {
+                    if (type === 'synaxarium') {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+            
+            // إخفاء أو إظهار الكروت الكبيرة إذا كانت خالية من العناصر المرئية
+            cards.forEach(card => {
+                // نبحث عن العناصر التي لا تحتوي على display: none
+                const visibleItems = Array.from(card.querySelectorAll('.lecture-item')).filter(item => item.style.display !== 'none');
+                if (visibleItems.length > 0) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
