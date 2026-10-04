@@ -1,0 +1,6 @@
+# robots.txt for https://holybiblefelopater.netlify.app/
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://holybiblefelopater.netlify.app/sitemap.xml

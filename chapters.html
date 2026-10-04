@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنجيلك المسموع - قراءة واستماع أسفار الكتاب المقدس</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="اقرأ واستمع إلى أصحاحات الكتاب المقدس كاملة بصوت نقي. تصفح أسفار العهد القديم والعهد الجديد مع مشغل صوتي سريع ومريح.">
+    <meta name="keywords" content="استماع الكتاب المقدس, قراءة الإنجيل, أصحاحات الكتاب المقدس, إنجيلك المسموع, الكتاب المقدس صوتي">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://holybiblefelopater.netlify.app/chapters.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="إنجيلك المسموع - قراءة واستماع أسفار الكتاب المقدس">
+    <meta property="og:description" content="مشغل الكتاب المقدس الصوتي والقراءة النصية لجميع الأسفار والإصحاحات بصوت نقي.">
+    <meta property="og:url" content="https://holybiblefelopater.netlify.app/chapters.html">
+    <meta property="og:image" content="https://holybiblefelopater.netlify.app/img/p1.jpg">
+
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1b263b">
     <link rel="preload" as="image" href="img/p1.jpg">
-    <link rel="icon" href="./img/app-icon.png">
-    <link rel="apple-touch-icon" href="./img/app-icon.png">
-    <title>إنجيلك المسموع - قراءة السفر</title>
+    <link rel="icon" href="./img/p1.jpg">
+    <link rel="apple-touch-icon" href="./img/p1.jpg">
     <link rel="stylesheet" href="chapters.css?v=4">
 </head>
 <body>
@@ -26,16 +40,16 @@
         <div class="player-container">
             <div class="audio-controls-row">
                 <div class="audio-source-toggle">
-                    <label class="source-label active" id="lbl-local">
-                        <input type="radio" name="audioSource" value="local" checked>
+                    <label class="source-label active" id="lbl-online">
+                        <input type="radio" name="audioSource" value="online" checked>
+                        <span>🌐 صوت المجد</span>
+                    </label>
+                    <label class="source-label" id="lbl-local">
+                        <input type="radio" name="audioSource" value="local">
                         <span>📁 صوت محلي</span>
                     </label>
-                    <label class="source-label" id="lbl-online">
-                        <input type="radio" name="audioSource" value="online">
-                        <span>🌐 بث إنترنت</span>
-                    </label>
                 </div>
-                <a id="external-audio-link" href="#" target="_blank" class="external-audio-btn" title="الاستماع على الموقع الأصلي">🔗 موقع الصوت</a>
+                <a id="external-audio-link" href="https://almagd.tv/bible" target="_blank" class="external-audio-btn" title="الاستماع على موقع المجد">🔗 موقع المجد</a>
             </div>
             <audio id="bible-audio" controls preload="auto"></audio>
         </div>

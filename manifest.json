@@ -1,0 +1,17 @@
+{
+  "name": "إنجيلك المسموع",
+  "short_name": "إنجيلك المسموع",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1b263b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./img/p1.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

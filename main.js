@@ -173,14 +173,14 @@ function renderChapterText(bookId, chapterNum) {
     }
 }
 
-// دالة تهيئة أزرار تبديل مصدر الصوت وحفظ الاختيار
+// // دالة تهيئة أزرار تبديل مصدر الصوت وحفظ الاختيار
 function initAudioSourceToggle() {
     const radioButtons = document.querySelectorAll('input[name="audioSource"]');
     const lblLocal = document.getElementById('lbl-local');
     const lblOnline = document.getElementById('lbl-online');
 
-    // قراءة القيمة المخزنة أو تعيين المحلي كافتراضي
-    const savedSource = localStorage.getItem('audioSource') || 'local';
+    // قراءة القيمة المخزنة أو تعيين بث المجد كافتراضي
+    const savedSource = localStorage.getItem('audioSource') || 'online';
 
     // تعيين حالة الاختيار المبدئية
     radioButtons.forEach(radio => {
@@ -209,16 +209,37 @@ function initAudioSourceToggle() {
     }
 }
 
+// دالة لتوليد رابط الصوت الخاص بموقع المجد لكل سفر وإصحاح
+function getAlmagdAudioUrl(bookId, chapterNum) {
+    const paddedChapter = String(chapterNum).padStart(3, '0');
+    
+    if (bookId >= 1 && bookId <= 18) {
+        // العهد القديم (من التكوين إلى أيوب)
+        const paddedBook = String(bookId).padStart(2, '0');
+        return `https://almagd.tv/soundbib/1/A${paddedBook}/${paddedChapter}.mp3`;
+    } else if (bookId >= 19 && bookId <= 39) {
+        // العهد القديم (من المزامير إلى ملاخي)
+        const paddedBook = String(bookId).padStart(2, '0');
+        return `https://almagd.tv/soundbib/2/B${paddedBook}/${paddedChapter}.mp3`;
+    } else if (bookId >= 40 && bookId <= 66) {
+        // العهد الجديد (من إنجيل متى إلى سفر الرؤيا)
+        const ntIndex = bookId - 39;
+        const paddedNt = String(ntIndex).padStart(2, '0');
+        return `https://almagd.tv/soundbib/3/E${paddedNt}/${paddedChapter}.mp3`;
+    }
+    return '';
+}
+
 // دالة تحديث وتشغيل مشغل الصوت بناءً على مصدر الصوت المختار
 function updateAudioPlayer(bookId, chapterNum) {
     const player = document.getElementById('bible-audio');
     const playerContainer = document.querySelector('.player-container');
     const externalLink = document.getElementById('external-audio-link');
     
-    // 1. تحديث رابط الاستماع الخارجي (موقع Wordproject)
+    // 1. تحديث رابط الاستماع الخارجي
     if (externalLink) {
-        const paddedBookId = String(bookId).padStart(2, '0');
-        externalLink.href = `https://www.wordproject.org/bibles/ar/${paddedBookId}/${chapterNum}.htm`;
+        externalLink.href = 'https://almagd.tv/bible';
+        externalLink.title = 'الاستماع على موقع المجد';
     }
 
     if (!player) return;
@@ -228,11 +249,11 @@ function updateAudioPlayer(bookId, chapterNum) {
     if (oldInfo) oldInfo.remove();
 
     // 3. قراءة مصدر الصوت
-    let selectedSource = localStorage.getItem('audioSource') || 'local';
+    let selectedSource = localStorage.getItem('audioSource') || 'online';
     const isOldTestament = bookId < 40;
     let fallbackToOnline = false;
 
-    // إذا كان السفر من العهد القديم، نحول قسرياً إلى البث من الإنترنت
+    // إذا كان السفر من العهد القديم واختار المستخدم المحلي، نحول للبث لعدم توفر ملفات محلية للعهد القديم
     if (isOldTestament && selectedSource === 'local') {
         selectedSource = 'online';
         fallbackToOnline = true;
@@ -241,7 +262,7 @@ function updateAudioPlayer(bookId, chapterNum) {
     // 4. تعيين الملف الصوتي والتشغيل
     if (selectedSource === 'online') {
         player.style.display = 'block';
-        player.src = `https://www.wordproaudio.net/bibles/app/audio/16/${bookId}/${chapterNum}.mp3`;
+        player.src = getAlmagdAudioUrl(bookId, chapterNum);
         player.load();
         
         // إظهار تنبيه لطيف للمستخدم في حالة التحويل التلقائي للعهد القديم
@@ -257,7 +278,7 @@ function updateAudioPlayer(bookId, chapterNum) {
             infoMsg.style.borderRadius = '10px';
             infoMsg.style.border = '1px dashed rgba(255, 215, 0, 0.3)';
             infoMsg.style.marginTop = '8px';
-            infoMsg.innerText = "🌐 تشغيل عبر الإنترنت لعدم توفر ملفات محلية للعهد القديم";
+            infoMsg.innerText = '🌐 تشغيل عبر الإنترنت لعدم توفر ملفات محلية للعهد القديم';
             playerContainer.appendChild(infoMsg);
         }
     } else {
@@ -268,7 +289,7 @@ function updateAudioPlayer(bookId, chapterNum) {
             if (audioFiles[audioIndex]) {
                 player.src = `./audio/${audioFiles[audioIndex]}`; 
                 player.load();
-                console.log("تشغيل الصوت المحلي للعهد الجديد:", player.src);
+                console.log('تشغيل الصوت المحلي للعهد الجديد:', player.src);
             }
         } else {
             player.style.display = 'none';
