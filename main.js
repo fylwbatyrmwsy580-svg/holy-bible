@@ -179,7 +179,13 @@ function initAudioSourceToggle() {
     const lblLocal = document.getElementById('lbl-local');
     const lblOnline = document.getElementById('lbl-online');
 
-    // قراءة القيمة المخزنة أو تعيين بث المجد كافتراضي
+    // إعادة تعيين مصدر الصوت تلقائياً إلى 'online' (صوت المجد) لتجاوز أي كاش قديم
+    if (localStorage.getItem('audioSource_v_almagd') !== '1') {
+        localStorage.setItem('audioSource', 'online');
+        localStorage.setItem('audioSource_v_almagd', '1');
+    }
+
+    // قراءة القيمة المخزنة (الافتراضي: بث المجد)
     const savedSource = localStorage.getItem('audioSource') || 'online';
 
     // تعيين حالة الاختيار المبدئية

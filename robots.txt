@@ -1,6 +1,6 @@
-# robots.txt for https://holybiblefelopater.netlify.app/
+# robots.txt for https://fylwbatyrmwsy580-svg.github.io/holy-bible/
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://holybiblefelopater.netlify.app/sitemap.xml
+Sitemap: https://fylwbatyrmwsy580-svg.github.io/holy-bible/sitemap.xml
